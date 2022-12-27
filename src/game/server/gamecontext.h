@@ -8,6 +8,7 @@
 #include <engine/shared/memheap.h>
 
 #include <teeuniverses/components/localization.h>
+#include <engine/storage.h> // MapGen
 
 #include <game/layers.h>
 #include <game/voting.h>
@@ -16,6 +17,7 @@
 #include "gamecontroller.h"
 #include "gameworld.h"
 #include "player.h"
+#include "mapgen.h"
 
 #ifdef _MSC_VER
 typedef __int32 int32_t;
@@ -47,6 +49,24 @@ typedef unsigned __int64 uint64_t;
 			All players (CPlayer::snap)
 
 */
+
+struct CPlayerSpecData
+{
+	CPlayerSpecData()
+	{
+		m_Kits = 0;
+		m_WeaponSlot = 0;
+		
+		for (int i = 0; i < 4; i++)
+			m_aWeapon[i] = 0;
+	}
+	
+	int m_WeaponSlot;
+	int m_aWeapon[4];
+	int m_Kits;
+};
+
+
 class CGameContext : public IGameServer
 {
 	IServer *m_pServer;
@@ -55,6 +75,9 @@ class CGameContext : public IGameServer
 	CCollision m_Collision;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
+	// MapGen
+	CMapGen m_MapGen;
+	IStorage *m_pStorage;
 
 	static void ConsoleOutputCallback_Chat(const char *pLine, void *pUser);
 
@@ -97,11 +120,16 @@ public:
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
 	virtual class CLayers *Layers() { return &m_Layers; }
+	// MapGen
+	IStorage *Storage() const { return m_pStorage; }
+	CMapGen *MapGen() { return &m_MapGen; }
 
 	CGameContext();
 	~CGameContext();
 
 	void Clear();
+
+	void ReloadMap();
 
 	CEventHandler m_Events;
 	CPlayer *m_apPlayers[MAX_CLIENTS];
@@ -149,6 +177,8 @@ public:
 	void CreateSound(vec2 Pos, int Sound, int64_t Mask=-1LL);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 
+	class CWeapon *NewWeapon(int Part1, int Part2);
+	class CWeapon *NewWeapon(int Weapon);
 
 	enum
 	{
@@ -167,7 +197,8 @@ public:
 	void SendBroadcast(const char *pText, int ClientID);
 	void SendBroadcast_VL(const char *pText, int ClientID, ...);
 	void SetClientLanguage(int ClientID, const char *pLanguage);
-
+	void CreateFlameHit(vec2 Pos);
+	void CreateBuildingHit(vec2 Pos);
 
 
 	//
@@ -176,6 +207,9 @@ public:
 
 	//
 	void SwapTeams();
+
+	//
+	void UpdateAI();
 
 	// engine events
 	virtual void OnInit();
@@ -203,6 +237,36 @@ public:
 	virtual const char *GameType();
 	virtual const char *Version();
 	virtual const char *NetVersion();
+
+	/* Ninslash Start */
+	// MapGen
+	virtual void SaveMap(const char *path);
+
+	vec2 GetNearHumanSpawnPos(bool AllowVision = false);
+	vec2 GetFarHumanSpawnPos(bool AllowVision = false);
+	int DistanceToHuman(vec2 Pos);
+	
+	void AddBot();
+	void KickBots();
+	void KickBot(int ClientID);
+	
+	bool IsBot(int ClientID);
+	bool IsHuman(int ClientID);
+	
+	int m_BroadcastLockTick;
+	
+	bool m_ShowWaypoints;
+	bool m_ShowAiState;
+
+	virtual void GetAISkin(int Skin, bool PVP, int Level = 1);
+	virtual void AddZombie();
+	virtual bool AIInputUpdateNeeded(int ClientID);
+	virtual void AIUpdateInput(int ClientID, int *Data);
+
+	int CountBots(bool SkipSpecialTees = false);
+	int CountBotsAlive(bool SkipSpecialTees = false);
+	//int CountHumans();
+	int CountHumansAlive();
 };
 
 inline int64_t CmaskAll() { return -1LL; }

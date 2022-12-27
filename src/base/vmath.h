@@ -211,4 +211,129 @@ typedef vector4_base<float> vec4;
 typedef vector4_base<bool> bvec4;
 typedef vector4_base<int> ivec4;
 
+// ------------------------------------
+
+template<typename T>
+class matrix22_base
+{
+public:
+	T m00, m01;
+	T m10, m11;
+
+	matrix22_base() {}
+	matrix22_base(T n00, T n01, T n10, T n11)
+	{
+		m00 = n00;
+		m01 = n01;
+		m10 = n10;
+		m11 = n11;
+	}
+
+	matrix22_base operator +(const matrix22_base &m) const { return matrix22_base(m00+m.m00, m01+m.m01, m10+m.m10, m11+m.m11); }
+	matrix22_base operator -(const matrix22_base &m) const { return matrix22_base(m00-m.m00, m01-m.m01, m10-m.m10, m11-m.m11); }
+	matrix22_base operator -() const { return matrix22_base(-m00, -m01, -m10, -m11); }
+	matrix22_base operator *(const T s) const { return matrix22_base(s*m00, s*m01, s*m10, s*m11); }
+	vector2_base<T> operator *(const vector2_base<T> &v) const { return vector2_base<T>(m00*v.x + m01*v.y, m10*v.x + m11*v.y); }
+	matrix22_base operator *(const matrix22_base &m) const
+	{
+		return matrix22_base(
+				m00*m.m00 + m01*m.m10, m00*m.m01 + m01*m.m11,
+				m10*m.m00 + m11*m.m10, m10*m.m01 + m11*m.m11
+			);
+	}
+
+	const matrix22_base &operator =(const matrix22_base &m) { m00 = m.m00; m01 = m.m01; m10 = m.m10; m11 = m.m11; return *this; }
+
+	const matrix22_base &operator +=(const matrix22_base &m) { m00 += m.m00; m01 += m.m01; m10 += m.m10; m11 += m.m11; return *this; }
+	const matrix22_base &operator -=(const matrix22_base &m) { m00 -= m.m00; m01 -= m.m01; m10 -= m.m10; m11 -= m.m11; return *this; }
+	const matrix22_base &operator *=(const T &s) { m00 *= s; m01 *= s; m10 *= s; m11 *= s; return *this; }
+	const matrix22_base &operator *=(const matrix22_base &m)
+	{
+		m00 = m00*m.m00 + m01*m.m10;
+		m01 = m00*m.m01 + m01*m.m11;
+		m10 = m10*m.m00 + m11*m.m10;
+		m11 = m10*m.m01 + m11*m.m11;
+		return *this;
+	}
+
+	bool operator ==(const matrix22_base &m) const { return m00 = m.m00 && m01 = m.m01 && m10 = m.m10 && m11 = m.m11; }
+
+
+	operator const T* () { return &m00; }
+};
+
+typedef matrix22_base<float> mat2;
+
+// ------------------------------------
+template<typename T>
+class matrix33_base
+{
+public:
+	T m00, m01, m02;
+	T m10, m11, m12;
+	T m20, m21, m22;
+
+	matrix33_base() {}
+	matrix33_base(
+		T n00, T n01, T n02, 
+		T n10, T n11, T n12,
+		T n20, T n21, T n22)
+	{
+		m00 = n00; m01 = n01; m02 = n02;
+		m10 = n10; m11 = n11; m12 = n12;
+		m20 = n20; m21 = n21; m22 = n22;
+	}
+
+	static
+	matrix33_base<T> identity()
+	{
+		return matrix33_base<T>(
+				T(1), 0, 0,
+				0, T(1), 0,
+				0, 0, T(1)
+			);
+	}
+
+	vector3_base<T> operator *(const vector3_base<T> &v) const
+	{
+		return vector3_base<T>(
+				m00*v.x + m01*v.y + m02*v.z,
+				m10*v.x + m11*v.y + m12*v.z,
+				m20*v.x + m21*v.y + m22*v.z
+			);
+	}
+
+	matrix33_base<T> operator *(const matrix33_base<T> &m) const
+	{
+		return matrix33_base<T>(
+				m00*m.m00 + m01*m.m10 + m02*m.m20, m00*m.m01 + m01*m.m11 + m02*m.m21, m00*m.m02 + m01*m.m12 + m02*m.m22,
+				m10*m.m00 + m11*m.m10 + m12*m.m20, m10*m.m01 + m11*m.m11 + m12*m.m21, m10*m.m02 + m11*m.m12 + m12*m.m22,
+				m20*m.m00 + m21*m.m10 + m22*m.m20, m20*m.m01 + m21*m.m11 + m22*m.m21, m20*m.m02 + m21*m.m12 + m22*m.m22
+			);
+	}
+
+	const matrix33_base &operator =(const matrix33_base &m)
+	{
+		m00 = m.m00; m01 = m.m01; m02 = m.m02;
+		m10 = m.m10; m11 = m.m11; m12 = m.m12;
+		m20 = m.m20; m21 = m.m21; m22 = m.m22;
+		return *this;
+	}
+
+	operator const T* () { return &m00; }
+};
+
+typedef matrix33_base<float> mat33;
+
+inline float mix_angle(float a, float b, float amount)
+{
+	float diff = b - a;
+	if(diff > 180.0f)
+		a += 360.0f;
+	if(diff < -180.0f)
+		a -= 360.0f;
+	return mix(a, b, amount);
+}
+
+
 #endif

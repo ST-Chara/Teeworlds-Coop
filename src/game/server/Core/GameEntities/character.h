@@ -8,6 +8,9 @@
 #include <game/generated/protocol.h>
 
 #include <game/gamecore.h>
+#include <game/weapons.h>
+
+#include "weapon.h"
 
 enum
 {
@@ -47,7 +50,7 @@ public:
 	void ResetInput();
 	void FireWeapon();
 
-	void Die(int Killer, int Weapon);
+	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret1 = false);
 	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon);
 
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);
@@ -67,6 +70,13 @@ public:
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
+
+	CWeapon *m_apWeapon[12];
+
+	bool m_IgnoreCollision;
+	
+	int m_DeathrayTick;
+	int m_DamageSoundTimer;
 
 	bool m_Alive;
 
@@ -131,6 +141,87 @@ private:
 	CCharacterCore m_SendCore; // core that we should send
 	CCharacterCore m_ReckoningCore; // the dead reckoning core
 
+public:
+/* Ninslash Start */
+	void SetAflame(float Duration, int From, int Weapon);
+	void TakeDeathtileDamage();
+	void TakeSawbladeDamage(vec2 SawbladePos);
+	void TakeDeathrayDamage();
+
+	bool AddKit();
+	bool AddKits(int Amount);
+
+	void SetArmor(int Armor);
+	void SetHealth(int Health);
+	void RefillHealth();
+
+	class CWeapon *GetWeapon(int Slot = -1) {
+		if (Slot >= NUM_SLOTS)
+			return NULL;
+		
+		if (Slot < 0 && m_WeaponSlot >= 0 && m_WeaponSlot < NUM_SLOTS)
+			return m_apWeapon[m_WeaponSlot];
+		
+		if (Slot < 0)
+			return NULL;
+		
+		return m_apWeapon[Slot];
+	}
+	
+	bool m_ForceCoreSend;
+	
+	bool m_IsBot;
+	int m_HiddenHealth;
+	int m_MaxHealth;
+	
+	bool m_Silent;
+	
+	bool m_WeaponPicked;
+	
+	void SaveData();
+	
+	int m_SkipPickups;
+	
+	int m_DeathTileTimer;
+	
+	int m_BombStatus;
+	
+	bool UpgradeWeapon();
+	
+	int m_WeaponSlot;
+	int m_WantedSlot;
+	
+	int GetMask();
+
+	bool GiveWeapon(class CWeapon *pWeapon);
+	int GetWeaponType(int Slot = -1);
+	int GetWeaponSlot(){ return clamp(m_WeaponSlot, 0, 3);}
+	int GetWeaponPowerLevel(int WeaponSlot = -1);
+	int FreeSlot();
+
+	// inventory
+	void InventoryRoll();
+	void DropItem(int Slot, vec2 Pos);
+	void SwapItem(int Item1, int Item2);
+	void CombineItem(int Item1, int Item2);
+	void TakePart(int Item1, int Slot, int Item2);
+	void SendInventory();
+	
+	void ReplaceWeapon(int Slot, int Part1, int Part2);
+	void ReleaseWeapon(class CWeapon *pWeapon = NULL);
+	bool TriggerWeapon(class CWeapon *pWeapon = NULL);
+	void ReleaseWeapons();
+
+	bool UpgradeTurret(vec2 Pos, vec2 Dir, int Slot = -1);
+	bool Deathrayed() const { return m_ElectroWallCooldown > 0;}
+
+	CCharacterCore GetCore(){ return m_Core; }
+	vec2 GetPosition(){ return m_Pos; }
+	
+	vec2 GetVel(){ return m_Core.m_Vel; }
+	
+private:
+	int m_ElectroWallCooldown;
 };
 
 #endif

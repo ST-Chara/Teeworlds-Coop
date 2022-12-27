@@ -164,11 +164,19 @@ public:
 
 	virtual void DemoRecorder_HandleAutoStart() = 0;
 	virtual bool DemoRecorder_IsRecording() = 0;
-
+	
 	virtual const char* GetClientLanguage(int ClientID) = 0;
 	virtual void SetClientLanguage(int ClientID, const char* pLanguage) = 0;
 	virtual int* GetIdMap(int ClientID) = 0;
 	virtual void SetCustClt(int ClientID) = 0;
+
+	virtual void AddZombie() = 0;
+	virtual class CPlayerData *GetPlayerData(int ClientID, int ColorID) = 0;
+	virtual int GetHighScore() = 0;
+	virtual int GetPlayerCount() = 0;
+
+	virtual char *GetMapName() = 0;
+	bool m_MapGenerated; // MapGen
 };
 
 class IGameServer : public IInterface
@@ -202,6 +210,11 @@ public:
 
 	virtual void OnSetAuthed(int ClientID, int Level) = 0;
 	virtual class CLayers *Layers() = 0;
+
+	virtual void AddZombie() = 0;
+	virtual void GetAISkin(int Skin, bool PVP, int Level) = 0;
+	virtual bool AIInputUpdateNeeded(int ClientID) = 0;
+	virtual void AIUpdateInput(int ClientID, int *Data) = 0; // MAX_INPUT_SIZE
 };
 
 extern IGameServer *CreateGameServer();

@@ -46,6 +46,11 @@ enum
 	TILE_SOLID,
 	TILE_DEATH,
 	TILE_NOHOOK,
+	TILE_RAMP_LEFT,
+	TILE_RAMP_RIGHT,
+	TILE_ROOFSLOPE_LEFT,
+	TILE_ROOFSLOPE_RIGHT,
+	TILE_DAMAGEFLUID,
 
 	TILEFLAG_VFLIP=1,
 	TILEFLAG_HFLIP=2,
@@ -186,11 +191,11 @@ struct CMapItemVersion
 
 struct CEnvPoint
 {
-	int m_Time; // in ms
+	int m_AnimationTime; // in ms
 	int m_Curvetype;
 	int m_aValues[4]; // 1-4 depending on envelope (22.10 fixed point)
 
-	bool operator<(const CEnvPoint &Other) { return m_Time < Other.m_Time; }
+	bool operator<(const CEnvPoint &Other) { return m_AnimationTime < Other.m_AnimationTime; }
 } ;
 
 struct CMapItemEnvelope_v1

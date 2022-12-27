@@ -40,13 +40,13 @@ void GetAnimationTransform(float GlobalTime, int Env, CLayers* pLayers, vec2& Po
 		return;
 	}
 
-	float Time = fmod(GlobalTime, pPoints[pItem->m_NumPoints-1].m_Time/1000.0f)*1000.0f;
+	float Time = fmod(GlobalTime, pPoints[pItem->m_NumPoints-1].m_AnimationTime/1000.0f)*1000.0f;
 	for(int i = 0; i < pItem->m_NumPoints-1; i++)
 	{
-		if(Time >= pPoints[i].m_Time && Time <= pPoints[i+1].m_Time)
+		if(Time >= pPoints[i].m_AnimationTime && Time <= pPoints[i+1].m_AnimationTime)
 		{
-			float Delta = pPoints[i+1].m_Time-pPoints[i].m_Time;
-			float a = (Time-pPoints[i].m_Time)/Delta;
+			float Delta = pPoints[i+1].m_AnimationTime-pPoints[i].m_AnimationTime;
+			float a = (Time-pPoints[i].m_AnimationTime)/Delta;
 
 
 			if(pPoints[i].m_Curvetype == CURVETYPE_SMOOTH)

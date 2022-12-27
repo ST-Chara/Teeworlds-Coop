@@ -6,8 +6,15 @@
 #include <game/mapitems.h>
 
 #include "character.h"
+#include "weapon.h"
+#include "building.h"
+#include "turret.h"
 #include "laser.h"
 #include "projectile.h"
+#include "superexplosion.h"
+#include "droid.h"
+#include "laserfail.h"
+#include "staticlaser.h"
 
 //input count
 struct CInputCount
@@ -669,36 +676,79 @@ bool CCharacter::IncreaseArmor(int Amount)
 	return true;
 }
 
-void CCharacter::Die(int Killer, int Weapon)
+void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret1)
 {
+	//if (Weapon < 0)
+	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
-	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
-	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
+	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+	
+	SaveData();
+	
+	m_pPlayer->m_DeathTick = Server()->Tick();
+	
+	if (g_Config.m_SvSurvivalMode)
+		m_pPlayer->m_RespawnTick = Server()->Tick();
+	else
+		m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*2;
+	
+	//if (Killer == m_pPlayer->GetCID() && (Weapon == WEAPON_HAMMER || Weapon == WEAPON_GAME))
+	//	SkipKillMessage = true;
 
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
-		Killer, Server()->ClientName(Killer),
-		m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	/*
+	if (Weapon == W_DROID_STAR && Killer >= 0 && Killer != GetPlayer()->GetCID())
+		Weapon = DEATHTYPE_DROID_STAR;
+	
+	if (Weapon == W_DROID_WALKER && Killer >= 0 && Killer != GetPlayer()->GetCID())
+		Weapon = DEATHTYPE_DROID_WALKER;
+	*/
+	
+	if (!SkipKillMessage && Killer >= 0)
+	{
+		int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
+		
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "kill killer='{%d}:{%s}' victim='{%d}:{%s}' weapon={%d} special={%d}",
+			Killer, Server()->ClientName(Killer),
+			m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
-	// send the kill message
-	CNetMsg_Sv_KillMsg Msg;
-	Msg.m_Killer = Killer;
-	Msg.m_Victim = m_pPlayer->GetCID();
-	Msg.m_Weapon = Weapon;
-	Msg.m_ModeSpecial = ModeSpecial;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
-
+		// send the kill message
+		if (Weapon != WEAPON_GAME)
+		{
+			CNetMsg_Sv_KillMsg Msg;
+			Msg.m_Killer = Killer;
+			Msg.m_Victim = m_pPlayer->GetCID();
+			Msg.m_Weapon = Weapon;
+			Msg.m_ModeSpecial = ModeSpecial;
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+		}
+	}
+	else
+		GameServer()->m_pController->OnCharacterDeath(this, NULL, Weapon);
+	
 	// a nice sound
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE);
 
 	// this is for auto respawn after 3 secs
 	m_pPlayer->m_DieTick = Server()->Tick();
 
+	ReleaseWeapons();
+	
 	m_Alive = false;
 	GameServer()->m_World.RemoveEntity(this);
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
-	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+	
+	if ((Killer >= 0 && Weapon != WEAPON_GAME) || !m_IsBot)
+		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+	
+	if (Killer >= 0 && Weapon != WEAPON_GAME && !IsBuilding(Weapon) && !IsTurret(Weapon))
+		GameServer()->CreateSoundGlobal(SOUND_NINJA_HIT, Killer);
+	
+	GameServer()->CreateSoundGlobal(SOUND_PLAYER_DIE, GetPlayer()->GetCID());
+
+	//if (m_ExplodeOnDeath && Killer >= 0)
+	//	GameServer()->CreateExplosion(m_Pos, Killer, Weapon, 0, false, false);
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon)

@@ -3,13 +3,14 @@
 #include <new>
 #include <base/math.h>
 #include <engine/shared/config.h>
+#include <engine/shared/datafile.h> // MapGen
 #include <engine/map.h>
 #include <engine/console.h>
 #include "gamecontext.h"
 #include <game/version.h>
 #include <game/collision.h>
 #include <game/gamecore.h>
-#include "gamemodes/mod.h"
+#include "gamemodes/run.h"
 
 #include <teeuniverses/components/localization.h>
 
@@ -1703,6 +1704,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
+	m_pStorage = Kernel()->RequestInterface<IStorage>(); // MapGen
 	m_World.SetGameServer(this);
 	m_Events.SetGameServer(this);
 
@@ -1714,6 +1716,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	m_Layers.Init(Kernel());
 	m_Collision.Init(&m_Layers);
+	m_MapGen.Init(&m_Layers, &m_Collision, m_pStorage); // MapGen
 
 	//Get zones
 	m_ZoneHandle_TeeWorlds = m_Collision.GetZoneHandle("teeworlds");
@@ -1723,7 +1726,16 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	//players = new CPlayer[MAX_CLIENTS];
 
 	// select gametype
-	m_pController = new CGameControllerMOD(this);
+	m_pController = new CGameControllerCoop(this);
+
+	if (!m_pServer->m_MapGenerated)
+	{
+		m_MapGen.FillMap();
+		SaveMap("");
+
+		str_copy(g_Config.m_SvMap, "generated", sizeof(g_Config.m_SvMap));
+		m_pServer->m_MapGenerated = true;
+	}
 
 	// setup core world
 	//for(int i = 0; i < MAX_CLIENTS; i++)
@@ -1890,3 +1902,251 @@ const char *CGameContext::Version() { return GAME_VERSION; }
 const char *CGameContext::NetVersion() { return GAME_NETVERSION; }
 
 IGameServer *CreateGameServer() { return new CGameContext; }
+
+
+
+/* Ninslash Start */
+void CGameContext::KickBots()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "engine", "Kicking bots...");
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (IsBot(i))
+			Server()->Kick(i, "");
+	}
+}
+
+void CGameContext::KickBot(int ClientID)
+{
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return;
+
+	if (m_apPlayers[ClientID]->GetCharacter())
+		m_apPlayers[ClientID]->GetCharacter()->Die(ClientID, WEAPON_WORLD, true);
+
+	if (IsBot(ClientID))
+		Server()->Kick(ClientID, "");
+}
+
+void CGameContext::AddBot()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "engine", "Adding a bot...");
+
+	/*
+	// find first free slot
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(!m_apPlayers[i])
+		{
+			Server()->AddZombie(i);
+			return;
+		}
+	}
+	*/
+	Server()->AddZombie();
+}
+
+int CGameContext::CountBots(bool SkipSpecialTees)
+{
+	int n = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (IsBot(i))
+		{
+			if (SkipSpecialTees)
+			{
+				if (m_apPlayers[i]->m_pAI && m_apPlayers[i]->m_pAI->m_Special < 0)
+					n++;
+			}
+			else
+				n++;
+		}
+	}
+
+	return n;
+}
+
+/*
+int CGameContext::CountHumans()
+{
+	int n = 0;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (IsHuman(i))
+			n++;
+	}
+	
+	return n;
+}
+*/
+
+int CGameContext::CountBotsAlive(bool SkipSpecialTees)
+{
+	int n = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (IsBot(i) && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->IsAlive())
+		{
+			if (SkipSpecialTees)
+			{
+				if (m_apPlayers[i]->m_pAI && m_apPlayers[i]->m_pAI->m_Special < 0)
+					n++;
+			}
+			else
+				n++;
+		}
+	}
+
+	return n;
+}
+
+int CGameContext::CountHumansAlive()
+{
+	int n = 0;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (IsHuman(i) && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->IsAlive())
+			n++;
+	}
+
+	return n;
+}
+
+int CGameContext::DistanceToHuman(vec2 Pos)
+{
+	int MinDist = 10000;
+
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
+		{
+			if (distance(Pos, m_apPlayers[i]->GetCharacter()->m_Pos) < MinDist)
+				MinDist = distance(Pos, m_apPlayers[i]->GetCharacter()->m_Pos);
+		}
+	}
+
+	return MinDist;
+}
+
+vec2 CGameContext::GetNearHumanSpawnPos(bool AllowVision)
+{
+	int n = 0;
+	vec2 ReturnPos = Collision()->GetRandomWaypointPos();
+	int Dist = 100000;
+
+	while (n++ < 50)
+	{
+		vec2 Pos = Collision()->GetRandomWaypointPos();
+
+		bool Valid = true;
+		int MinDist = 10000;
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
+			{
+				vec2 PlayerPos = m_apPlayers[i]->GetCharacter()->m_Pos;
+
+				if (!AllowVision && abs(Pos.x - PlayerPos.x) < 1200 && abs(Pos.x - PlayerPos.x) < 900)
+				{
+					Valid = false;
+					break;
+				}
+				else
+				{
+
+					if (distance(Pos, PlayerPos) < MinDist)
+						MinDist = distance(Pos, PlayerPos);
+				}
+			}
+		}
+
+		if (Valid)
+		{
+			if (MinDist < 1800)
+				return Pos;
+
+			if (MinDist < Dist)
+			{
+				Dist = MinDist;
+				ReturnPos = Pos;
+			}
+		}
+	}
+	return ReturnPos;
+}
+
+vec2 CGameContext::GetFarHumanSpawnPos(bool AllowVision)
+{
+	int n = 0;
+	vec2 ReturnPos = Collision()->GetRandomWaypointPos();
+	int Dist = 1;
+
+	while (n++ < 50)
+	{
+		vec2 Pos = Collision()->GetRandomWaypointPos();
+
+		bool Valid = true;
+		int MaxDist = 1;
+
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
+			{
+				vec2 PlayerPos = m_apPlayers[i]->GetCharacter()->m_Pos;
+
+				if (!AllowVision && abs(Pos.x - PlayerPos.x) < 1200 && abs(Pos.x - PlayerPos.x) < 900)
+				{
+					Valid = false;
+					break;
+				}
+				else
+				{
+
+					if (distance(Pos, PlayerPos) > MaxDist)
+						MaxDist = distance(Pos, PlayerPos);
+				}
+			}
+		}
+
+		if (Valid)
+		{
+			if (MaxDist > 3000)
+				return Pos;
+
+			if (MaxDist > Dist)
+			{
+				Dist = MaxDist;
+				ReturnPos = Pos;
+			}
+		}
+	}
+	return ReturnPos;
+}
+
+// MapGen
+void CGameContext::SaveMap(const char *path)
+{
+	IMap *pMap = Layers()->Map();
+	if (!pMap)
+		return;
+
+	CDataFileWriter fileWrite;
+	char aMapFile[512];
+	//str_format(aMapFile, sizeof(aMapFile), "maps/{%s}_{%d}.map", Server()->GetMapName(), g_Config.m_SvMapGenSeed);
+	str_format(aMapFile, sizeof(aMapFile), "maps/generated.map");
+
+	// Map will be saved to current dir, not to ~/.ninslash/maps or to data/maps, so we need to create a dir for it
+	Storage()->CreateFolder("maps", IStorage::TYPE_SAVE);
+
+	fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
+
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "Map saved in '{%s}'!", aMapFile);
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+}

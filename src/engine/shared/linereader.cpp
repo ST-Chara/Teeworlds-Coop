@@ -1,17 +1,49 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
 #include "linereader.h"
+
+CLineReader::CLineReader()
+{
+	m_pStream = 0x0;
+}
+
+CLineReader::~CLineReader()
+{
+	Shutdown();
+}
 
 void CLineReader::Init(IOHANDLE io)
 {
+	dbg_assert(m_pStream == 0x0, "Invalid stream");
+
 	m_BufferMaxSize = sizeof(m_aBuffer);
 	m_BufferSize = 0;
 	m_BufferPos = 0;
-	m_IO = io;
+
+	m_pStream = new CIOStream(io);
+}
+
+void CLineReader::InitString(const char *pString)
+{
+	dbg_assert(m_pStream == 0x0, "Invalid stream");
+
+	m_BufferMaxSize = sizeof(m_aBuffer);
+	m_BufferSize = 0;
+	m_BufferPos = 0;
+
+	m_pStream = new CStringStream(pString);
+}
+
+void CLineReader::Shutdown()
+{
+	if(m_pStream) {
+		delete m_pStream;
+		m_pStream = 0x0;
+	}
 }
 
 char *CLineReader::Get()
 {
+	dbg_assert(m_pStream != 0x0, "Missing stream");
+
 	unsigned LineStart = m_BufferPos;
 	bool CRLFBreak = false;
 
@@ -32,7 +64,7 @@ char *CLineReader::Get()
 			m_BufferPos = Left;
 
 			// fill the buffer
-			Read = io_read(m_IO, &m_aBuffer[m_BufferPos], m_BufferMaxSize-m_BufferPos);
+			Read = m_pStream->Read(&m_aBuffer[m_BufferPos], m_BufferMaxSize-m_BufferPos);
 			m_BufferSize = Left + Read;
 			LineStart = 0;
 

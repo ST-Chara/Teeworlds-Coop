@@ -73,6 +73,21 @@ protected:
 public:
 	const char *m_pGameType;
 
+	int GetAliveCID(int Team = -1);
+	int CountPlayersAlive(int Team = -1, bool IgnoreBots = false);
+	int CountPlayers(int Team = -1);
+	int CountHumans();
+	int CountBots();
+	int CountBotsAlive();
+
+	void TriggerSwitch(vec2 Pos);
+	void TriggerEscape();
+	
+	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f, int PowerLevel = 0);
+	void DropWeapon(vec2 Pos, vec2 Force, class CWeapon *pWeapon);
+	
+	virtual void NextLevel(int CID = -1);
+
 	bool IsTeamplay() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 
@@ -155,6 +170,8 @@ public:
 	virtual void PostReset();
 
 	double GetTime();
+
+	void FirstMap();
 };
 
 #endif

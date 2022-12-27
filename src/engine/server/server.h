@@ -64,10 +64,16 @@ class CServer : public IServer
 	class IGameServer *m_pGameServer;
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
+
+	class CPlayerData *m_pPlayerData;
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class IConsole *Console() { return m_pConsole; }
 	class IStorage *Storage() { return m_pStorage; }
+
+	class CPlayerData *GetPlayerData(int ClientID, int ColorID);
+	int GetHighScore();
+	int GetPlayerCount();
 
 	enum
 	{
@@ -106,6 +112,8 @@ public:
 		int m_State;
 		int m_Latency;
 		int m_SnapRate;
+
+		bool m_Bot;
 
 		int m_LastAckedSnapshot;
 		int m_LastInputTick;
@@ -225,7 +233,7 @@ public:
 
 	void PumpNetwork();
 
-	char *GetMapName();
+	virtual char *GetMapName(); // MapGen
 	int LoadMap(const char *pMapName);
 
 	void InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterServer, IConsole *pConsole);

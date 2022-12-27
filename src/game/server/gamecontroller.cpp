@@ -5,7 +5,7 @@
 
 #include <game/generated/protocol.h>
 
-#include "entities/pickup.h"
+#include "Core/GameEntities/pickup.h"
 #include "gamecontroller.h"
 #include "gamecontext.h"
 
@@ -135,7 +135,7 @@ bool IGameController::OnEntity(const char* pName, vec2 Pivot, vec2 P0, vec2 P1, 
 	if(str_comp(pName, "spawn") == 0)
 		m_aaSpawnPoints[0][m_aNumSpawnPoints[0]++] = Pos;
 	else if(str_comp(pName, "redSpawn") == 0)
-		m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
+		return false; // Coop
 	else if(str_comp(pName, "buleSpawn") == 0)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
 	else if(str_comp(pName, "armor") == 0)
@@ -768,4 +768,202 @@ int IGameController::ClampTeam(int Team)
 double IGameController::GetTime()
 {
 	return static_cast<double>(Server()->Tick() - m_RoundStartTick)/Server()->TickSpeed();
+}
+
+int IGameController::CountHumans()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (!pPlayer->m_IsBot)
+			Num++;
+	}
+	
+	return Num;
+}
+
+
+int IGameController::CountPlayers(int Team)
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+				Num++;
+		}
+	}
+	
+	return Num;
+}
+
+
+int IGameController::CountPlayersAlive(int Team, bool IgnoreBots)
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+			{
+				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive() && (!IgnoreBots || !pPlayer->m_IsBot))
+					Num++;
+			}
+		}
+	}
+	
+	return Num;
+}
+
+
+int IGameController::GetAliveCID(int Team)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+			{
+				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+					return i;
+			}
+		}
+	}
+	
+	return -1;
+}
+
+
+int IGameController::CountBots()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->m_IsBot)
+			Num++;
+	}
+	
+	return Num;
+}
+
+int IGameController::CountBotsAlive()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->m_IsBot && pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+			Num++;
+	}
+	
+	return Num;
+}
+
+void IGameController::FirstMap()
+{
+	g_Config.m_SvMapGenLevel = 1;
+	g_Config.m_SvInvFails = 0;
+	
+	if(m_aMapWish[0] != 0)
+	{
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "rotating map to {%s}", m_aMapWish);
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		str_copy(g_Config.m_SvMap, m_aMapWish, sizeof(g_Config.m_SvMap));
+		m_aMapWish[0] = 0;
+		m_RoundCount = 0;
+		return;
+	}
+	if(!str_length(g_Config.m_SvMaprotation))
+		return;
+
+	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
+	{
+		if(g_Config.m_SvRoundSwap)
+			GameServer()->SwapTeams();
+		return;
+	}
+
+	// handle maprotation
+	const char *pMapRotation = g_Config.m_SvMaprotation;
+	const char *pCurrentMap = g_Config.m_SvMap;
+
+	int CurrentMapLen = str_length(pCurrentMap);
+	const char *pNextMap = pMapRotation;
+	while(*pNextMap)
+	{
+		int WordLen = 0;
+		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
+			WordLen++;
+
+		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
+		{
+			// map found
+			pNextMap += CurrentMapLen;
+			while(*pNextMap && IsSeparator(*pNextMap))
+				pNextMap++;
+
+			break;
+		}
+
+		pNextMap++;
+	}
+
+	// restart rotation
+	//if(pNextMap[0] == 0)
+		pNextMap = pMapRotation;
+
+	// cut out the next map
+	char aBuf[512] = {0};
+	for(int i = 0; i < 511; i++)
+	{
+		aBuf[i] = pNextMap[i];
+		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
+		{
+			aBuf[i] = 0;
+			break;
+		}
+	}
+
+	// skip spaces
+	int i = 0;
+	while(IsSeparator(aBuf[i]))
+		i++;
+
+	m_RoundCount = 0;
+
+	char aBufMsg[256];
+	str_format(aBufMsg, sizeof(aBufMsg), "restarting map rotating to {%s}", &aBuf[i]);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
 }

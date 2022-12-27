@@ -23,6 +23,9 @@ public:
 		ENTTYPE_PICKUP,
 		ENTTYPE_FLAG,
 		ENTTYPE_CHARACTER,
+		ENTTYPE_RADAR,
+		ENTTYPE_DROID,
+		ENTTYPE_BUILDING,
 		NUM_ENTTYPES
 	};
 
@@ -86,6 +89,8 @@ public:
 	*/
 	class CCharacter *IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, class CEntity *pNotThis = 0);
 
+	class CCharacter *GetFriendlyCharacterInBox(vec2 TopLeft, vec2 BotRight, int Team);
+	
 	/*
 		Function: closest_CCharacter
 			Finds the closest CCharacter to a specific point.

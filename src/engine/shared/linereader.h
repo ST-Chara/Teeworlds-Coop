@@ -1,8 +1,10 @@
-/* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
-/* If you are missing that file, acquire a complete release at teeworlds.com.                */
+
+
 #ifndef ENGINE_SHARED_LINEREADER_H
 #define ENGINE_SHARED_LINEREADER_H
 #include <base/system.h>
+
+#include "stream.h"
 
 // buffered stream for reading lines, should perhaps be something smaller
 class CLineReader
@@ -11,9 +13,16 @@ class CLineReader
 	unsigned m_BufferPos;
 	unsigned m_BufferSize;
 	unsigned m_BufferMaxSize;
-	IOHANDLE m_IO;
+	
+	CInputStream *m_pStream;
+
 public:
+	CLineReader();
+	~CLineReader();
 	void Init(IOHANDLE IoHandle);
+	void InitString(const char *pString);
 	char *Get();
+
+	void Shutdown();
 };
 #endif

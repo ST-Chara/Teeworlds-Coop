@@ -373,3 +373,20 @@ void CPlayer::SetLanguage(const char* pLanguage)
 {
 	str_copy(m_aLanguage, pLanguage, sizeof(m_aLanguage));
 }
+
+void CPlayer::SetAISkin()
+{
+	GameServer()->Server()->SetClientName(GetCID(), m_AISkin.m_aName);
+	str_copy(m_TeeInfos.m_HeadName, m_AISkin.m_aHead, 24);
+	str_copy(m_TeeInfos.m_BodyName, m_AISkin.m_aBody, 24);
+	str_copy(m_TeeInfos.m_HandName, m_AISkin.m_aHand, 24);
+	str_copy(m_TeeInfos.m_FootName, m_AISkin.m_aFoot, 24);
+	str_copy(m_TeeInfos.m_TopperName, m_AISkin.m_aTopper, 24);
+	str_copy(m_TeeInfos.m_EyeName, m_AISkin.m_aEye, 24);
+	
+	m_TeeInfos.m_ColorSkin = m_AISkin.m_ColorSkin;
+	m_TeeInfos.m_ColorBody = m_AISkin.m_ColorBody;
+	m_TeeInfos.m_ColorTopper = m_AISkin.m_ColorTopper;
+	m_TeeInfos.m_ColorFeet = m_AISkin.m_ColorFoot;
+	m_TeeInfos.m_BloodColor = m_AISkin.m_ColorBlood;
+}

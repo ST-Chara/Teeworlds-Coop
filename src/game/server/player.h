@@ -4,8 +4,44 @@
 #define GAME_SERVER_PLAYER_H
 
 // this include should perhaps be removed
-#include "entities/character.h"
+#include "Core/GameEntities/character.h"
 #include "gamecontext.h"
+#include "ai.h"
+
+#include <game/weapons.h>
+
+enum Skins
+{
+	SKIN_ALIEN1,
+	SKIN_ALIEN2,
+	SKIN_ALIEN3,
+	SKIN_ALIEN4,
+	SKIN_ALIEN5,
+	SKIN_BUNNY1,
+	SKIN_BUNNY2,
+	SKIN_BUNNY3,
+	SKIN_FOXY1,
+	SKIN_BUNNY4,
+	SKIN_ROBO1,
+	SKIN_ROBO2,
+	SKIN_ROBO3,
+	SKIN_ROBO4,
+	SKIN_ROBO5,
+	SKIN_PYRO1,
+	SKIN_PYRO2,
+	SKIN_SKELETON1,
+	SKIN_SKELETON2,
+	SKIN_SKELETON3,
+	SKIN_PYRO3,
+};
+
+struct AISkin
+{
+	char m_SkinName[64];
+	int m_UseCustomColor;
+	int m_ColorBody;
+	int m_ColorFeet;
+};
 
 // player object
 class CPlayer
@@ -77,6 +113,7 @@ public:
 		int m_ColorFeet;
 	} m_TeeInfos;
 
+	int m_DeathTick;
 	int m_RespawnTick;
 	int m_DieTick;
 	int m_Score;
@@ -102,7 +139,26 @@ public:
 	} m_Latency;
 
 	int m_Authed;
+	
+	CAI *m_pAI;
+	bool m_IsBot;
 
+	void AITick();
+	bool AIInputChanged();
+	
+	bool m_ToBeKicked;
+
+	void SetRandomSkin();
+	void SetCustomSkin(int Type);
+
+	int m_Gold;
+	
+	int GetGold() { return m_Gold; }
+	void ReduceGold(int Amount) { m_Gold = max(0, m_Gold-Amount); }
+	bool IncreaseGold(int Amount);
+
+	int m_AISkin;
+	void SetAISkin();
 private:
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
@@ -125,6 +181,9 @@ private:
 
 public:
 	CTuningParams* GetNextTuningParams() { return &m_NextTuningParams; };
+
+	void SaveData();	
+	void NewRound();
 };
 
 #endif

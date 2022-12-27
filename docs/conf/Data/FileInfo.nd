@@ -26,7 +26,7 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/engine/docs/client_time.txt	1209633420	1	Time on the client
 /home/kma/code/teeworlds/trunk/src/game/client/animstate.cpp	1219785741	0	/home/kma/code/teeworlds/trunk/src/game/client/animstate.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/damageind.hpp	1219841173	0	/home/kma/code/teeworlds/trunk/src/game/client/components/damageind.hpp
-/home/kma/code/teeworlds/trunk/src/game/server/entities/laser.hpp	1218740976	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/laser.hpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/laser.hpp	1218740976	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/laser.hpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/nameplates.hpp	1220569205	0	/home/kma/code/teeworlds/trunk/src/game/client/components/nameplates.hpp
 /home/kma/code/teeworlds/trunk/src/game/server/gamemodes/tdm.cpp	1220222010	0	/home/kma/code/teeworlds/trunk/src/game/server/gamemodes/tdm.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/broadcast.hpp	1219841173	0	/home/kma/code/teeworlds/trunk/src/game/client/components/broadcast.hpp
@@ -57,7 +57,7 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/game/server/player.hpp	1222356463	0	/home/kma/code/teeworlds/trunk/src/game/server/player.hpp
 /home/kma/code/teeworlds/trunk/src/game/client/lineinput.hpp	1220087940	0	/home/kma/code/teeworlds/trunk/src/game/client/lineinput.hpp
 /home/kma/code/teeworlds/trunk/src/engine/server/es_server.c	1222638818	0	/home/kma/code/teeworlds/trunk/src/engine/server/es_server.c
-/home/kma/code/teeworlds/trunk/src/game/server/entities/projectile.hpp	1218741010	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/projectile.hpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/projectile.hpp	1218741010	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/projectile.hpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/debughud.cpp	1220135200	0	/home/kma/code/teeworlds/trunk/src/game/client/components/debughud.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/items.hpp	1219841173	0	/home/kma/code/teeworlds/trunk/src/game/client/components/items.hpp
 /home/kma/code/teeworlds/trunk/src/game/server/player.cpp	1222273690	0	/home/kma/code/teeworlds/trunk/src/game/server/player.cpp
@@ -65,8 +65,8 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/game/client/components/maplist.hpp	1222691020	0	/home/kma/code/teeworlds/trunk/src/game/client/components/maplist.hpp
 /home/kma/code/teeworlds/trunk/src/engine/e_snapshot.c	1214463651	0	/home/kma/code/teeworlds/trunk/src/engine/e_snapshot.c
 /home/kma/code/teeworlds/trunk/src/game/client/components/binds.hpp	1222354232	0	/home/kma/code/teeworlds/trunk/src/game/client/components/binds.hpp
-/home/kma/code/teeworlds/trunk/src/game/server/entities/character.cpp	1222356921	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/character.cpp
-/home/kma/code/teeworlds/trunk/src/game/server/entities/laser.cpp	1222190271	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/laser.cpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/character.cpp	1222356921	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/character.cpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/laser.cpp	1222190271	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/laser.cpp
 /home/kma/code/teeworlds/trunk/src/engine/docs/snapshots.txt	1218450372	1	Snapshots
 /home/kma/code/teeworlds/trunk/src/game/generated/gc_data.hpp	1222683447	0	/home/kma/code/teeworlds/trunk/src/game/generated/gc_data.hpp
 /home/kma/code/teeworlds/trunk/src/game/generated/nethash.c	1222161195	0	/home/kma/code/teeworlds/trunk/src/game/generated/nethash.c
@@ -113,7 +113,7 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/game/generated/g_protocol.cpp	1222683446	0	/home/kma/code/teeworlds/trunk/src/game/generated/g_protocol.cpp
 /home/kma/code/teeworlds/trunk/src/engine/e_datafile.h	1209633421	0	/home/kma/code/teeworlds/trunk/src/engine/e_datafile.h
 /home/kma/code/teeworlds/trunk/src/engine/e_linereader.h	1218717511	0	/home/kma/code/teeworlds/trunk/src/engine/e_linereader.h
-/home/kma/code/teeworlds/trunk/src/game/server/entities/pickup.cpp	1220570254	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/pickup.cpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/pickup.cpp	1220570254	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/pickup.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/maplayers.cpp	1220253273	0	/home/kma/code/teeworlds/trunk/src/game/client/components/maplayers.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/hud.cpp	1222355982	0	/home/kma/code/teeworlds/trunk/src/game/client/components/hud.cpp
 /home/kma/code/teeworlds/trunk/src/game/server/gamemodes/tdm.hpp	1218741462	0	/home/kma/code/teeworlds/trunk/src/game/server/gamemodes/tdm.hpp
@@ -155,7 +155,7 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/engine/e_jobs.c	1220818102	0	/home/kma/code/teeworlds/trunk/src/engine/e_jobs.c
 /home/kma/code/teeworlds/trunk/src/game/client/components/menus_settings.cpp	1222353486	0	/home/kma/code/teeworlds/trunk/src/game/client/components/menus_settings.cpp
 /home/kma/code/teeworlds/trunk/src/engine/client/ec_gfx.c	1220477125	0	/home/kma/code/teeworlds/trunk/src/engine/client/ec_gfx.c
-/home/kma/code/teeworlds/trunk/src/game/server/entities/character.hpp	1222203546	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/character.hpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/character.hpp	1222203546	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/character.hpp
 /home/kma/code/teeworlds/trunk/src/game/server/eventhandler.hpp	1218742466	0	/home/kma/code/teeworlds/trunk/src/game/server/eventhandler.hpp
 /home/kma/code/teeworlds/trunk/src/game/client/clienthooks.cpp	1220568950	0	/home/kma/code/teeworlds/trunk/src/game/client/clienthooks.cpp
 /home/kma/code/teeworlds/trunk/src/game/client/components/console.cpp	1220569111	0	/home/kma/code/teeworlds/trunk/src/game/client/components/console.cpp
@@ -168,9 +168,9 @@ C/C++
 /home/kma/code/teeworlds/trunk/src/game/layers.cpp	1218967120	0	/home/kma/code/teeworlds/trunk/src/game/layers.cpp
 /home/kma/code/teeworlds/trunk/src/engine/e_if_server.h	1220195032	1	Server Interface
 /home/kma/code/teeworlds/trunk/src/game/client/animstate.hpp	1219785206	0	/home/kma/code/teeworlds/trunk/src/game/client/animstate.hpp
-/home/kma/code/teeworlds/trunk/src/game/server/entities/projectile.cpp	1222190276	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/projectile.cpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/projectile.cpp	1222190276	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/projectile.cpp
 /home/kma/code/teeworlds/trunk/src/game/editor/ed_layer_quads.cpp	1218738227	0	/home/kma/code/teeworlds/trunk/src/game/editor/ed_layer_quads.cpp
-/home/kma/code/teeworlds/trunk/src/game/server/entities/pickup.hpp	1218740990	0	/home/kma/code/teeworlds/trunk/src/game/server/entities/pickup.hpp
+/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/pickup.hpp	1218740990	0	/home/kma/code/teeworlds/trunk/src/game/server/Core/GameEntities/pickup.hpp
 /home/kma/code/teeworlds/trunk/src/game/server/entity.hpp	1222252624	1	Entity
 /home/kma/code/teeworlds/trunk/src/game/generated/g_protocol.hpp	1222683446	0	/home/kma/code/teeworlds/trunk/src/game/generated/g_protocol.hpp
 /home/kma/code/teeworlds/trunk/src/game/client/gc_render.hpp	1222182049	0	/home/kma/code/teeworlds/trunk/src/game/client/gc_render.hpp

@@ -94,4 +94,34 @@ MACRO_CONFIG_INT(DbgTuning, dbg_tuning, 0, 0, 1, CFGFLAG_CLIENT, "")
 
 MACRO_CONFIG_INT(SvMapUpdateRate, sv_mapupdaterate, 5, 1, 100, CFGFLAG_SERVER, "(Tw32) real id <-> vanilla id players map update rate")
 
+MACRO_CONFIG_INT(SvEnableBuilding, sv_enablebuilding, 0, 0, 1, CFGFLAG_SERVER, "Enable building")
+MACRO_CONFIG_INT(SvRandomWeapons, sv_randomweapons, 0, 0, 1, CFGFLAG_SERVER, "Enable random weapons")
+MACRO_CONFIG_INT(SvWeaponSpawns, sv_weaponspawns, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon spawning")
+MACRO_CONFIG_INT(SvLaserWeapon, sv_laserweapon, 0, 0, 1, CFGFLAG_SERVER, "Give laser weapon on spawn")
+MACRO_CONFIG_INT(SvSurvivalMode, sv_survivalmode, 0, 0, 1, CFGFLAG_SERVER, "Survival mode")
+MACRO_CONFIG_INT(SvSurvivalAcid, sv_survivalacid, 1, 0, 1, CFGFLAG_SERVER, "Survival ends with rising acid")
+MACRO_CONFIG_INT(SvSurvivalTime, sv_survivaltime, 0, 0, 600, CFGFLAG_SERVER, "Survival round time limit")
+MACRO_CONFIG_INT(SvSurvivalReward, sv_survivalreward, 5, 0, 1000, CFGFLAG_SERVER, "Survival round winner's reward points")
+MACRO_CONFIG_INT(SvAbilities, sv_abilities, 0, 0, 1, CFGFLAG_SERVER, "Enable classes & abilities")
+MACRO_CONFIG_INT(SvPickupDrops, sv_pickupdrops, 1, 0, 1, CFGFLAG_SERVER, "Pickup drops")
+MACRO_CONFIG_INT(SvHealthPickups, sv_healthpickups, 1, 0, 1, CFGFLAG_SERVER, "Enable hp and armor pickups")
+MACRO_CONFIG_INT(SvWeaponDrops, sv_weapondrops, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon drops")
+MACRO_CONFIG_INT(SvNumBots, sv_bots, 4, 0, 30, CFGFLAG_SERVER, "Max number of bots")
+MACRO_CONFIG_INT(SvNoBotTeam, sv_nobotteam, -1, -1, 9, CFGFLAG_SERVER, "")
+MACRO_CONFIG_INT(SvBotLevel, sv_botlevel, 6, 1, 30, CFGFLAG_SERVER, "AI level of bots")
+MACRO_CONFIG_INT(SvUnlimitedTurbo, sv_unlimited_turbo, 0, 0, 1, CFGFLAG_SERVER, "Unlimited turbo")
+MACRO_CONFIG_INT(SvOneHitKill, sv_one_hit_kill, 0, 0, 1, CFGFLAG_SERVER, "One hit kills")
+MACRO_CONFIG_INT(SvSelfKillPenalty, sv_selfkillpenalty, 1, 0, 1, CFGFLAG_SERVER, "Penalty for self kills")
+
+// MapGen
+MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 1, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
+MACRO_CONFIG_INT(SvMapGenLevel, sv_mapgen_level, 1, 1, 9999, CFGFLAG_SERVER, "Map Difficulty")
+MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 32767, CFGFLAG_SERVER, "Map generation seed")
+MACRO_CONFIG_INT(SvMapGenRandSeed, sv_mapgen_random_seed, 1, 0, 1, CFGFLAG_SERVER, "Random map generation seed")
+
+// Invasion
+MACRO_CONFIG_INT(SvInvFails, sv_inv_fails,  0, 0, 9, CFGFLAG_SERVER, "Invasion level fails")
+MACRO_CONFIG_INT(SvInvBosses, sv_inv_bosses,  0, 0, 99, CFGFLAG_SERVER, "Invasion level bosses")
+
+
 #endif
